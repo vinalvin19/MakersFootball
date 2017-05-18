@@ -54,7 +54,6 @@ namespace MakersFootball
                     {
                         GameResult.HomeOrAway = HomeOrAway;
                     }
-                    soccerResults.Add(GameResult);
 
                     int parseInt;
                     if (int.TryParse(values[3], out parseInt))
@@ -74,6 +73,13 @@ namespace MakersFootball
                         GameResult.ShotsOffGoal = parseInt;
                     }
 
+                    Double PossessionPercent;
+                    if (Double.TryParse(values[6], out PossessionPercent))
+                    {
+                        GameResult.PossessionPercent = PossessionPercent;
+                    }
+
+                    soccerResults.Add(GameResult);
                 }
             }
             return soccerResults;

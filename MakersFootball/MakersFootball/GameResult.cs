@@ -21,6 +21,16 @@ namespace MakersFootball
         public int ShotsOnGoal { get; set; }
 
         public int ShotsOffGoal { get; set; }
+
+        public Double PossessionPercent { get; set; }
+
+        public Double ConversionRate
+        {
+            get
+            {
+                return (double) Goals / (double) GoalAttempts;
+            }
+        }
     }
 
     public enum HomeOrAway
