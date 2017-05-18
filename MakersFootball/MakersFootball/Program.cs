@@ -21,8 +21,13 @@ namespace MakersFootball
             fileName = Path.Combine(directory.FullName, "players.json");
             var players = DeserializedPlayer(fileName);
 
-            foreach (var player in players)
-                Console.WriteLine(player.second_name);
+            var topTenPlayers = GetTopTenPlayers(players);
+
+            foreach (var player in topTenPlayers)
+                Console.WriteLine(player.FirstName + " - " + player.PointsPerGame);
+
+            var fileTopTen = Path.Combine(directory.FullName, "topten.json");
+            SerializePlayerToFile(topTenPlayers, fileTopTen);
 
             Console.ReadLine();
         }
@@ -102,6 +107,35 @@ namespace MakersFootball
                 players = serializer.Deserialize<List<Player>>(jsonReader);
             }
                 return players;
+        }
+
+        public static List<Player> GetTopTenPlayers(List<Player> players)
+        {
+            players.Sort(new PlayerComparer());
+            var topTenPlayers = new List<Player>();
+            var i = 0;
+
+            foreach (var player in players)
+            {
+                topTenPlayers.Add(player);
+                i++;
+
+                if (i == 10)
+                    break;
+            }
+
+            return topTenPlayers;
+        }
+
+        public static void SerializePlayerToFile(List<Player> players, string fileName)
+        {
+            var serializer = new JsonSerializer();
+
+            using (var writer = new StreamWriter(fileName))
+            using (var jsonWriter= new JsonTextWriter(writer))
+            {
+                serializer.Serialize(jsonWriter, players);
+            }
         }
     }
 }
