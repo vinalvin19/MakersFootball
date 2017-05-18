@@ -29,16 +29,51 @@ namespace MakersFootball
             }
         }
 
-        public static List<string[]> ReadFootballResults(string fileName)
+        public static List<GameResult> ReadFootballResults(string fileName)
         {
-            var soccerResults = new List<string[]>();
+            var soccerResults = new List<GameResult>();
             using (var reader = new StreamReader(fileName))
             {
                 var line = "";
+                reader.ReadLine();
                 while ((line = reader.ReadLine()) != null)
                 {
+                    var GameResult = new GameResult();
+                    DateTime gameDate;
                     string[] values = line.Split(',');
-                    soccerResults.Add(values);
+
+                    if (DateTime.TryParse(values[0], out gameDate))
+                    {
+                        GameResult.GameDate = gameDate;
+                    }
+
+                    GameResult.TeamName = values[1];
+
+                    HomeOrAway HomeOrAway;
+                    if (Enum.TryParse(values[2], out HomeOrAway))
+                    {
+                        GameResult.HomeOrAway = HomeOrAway;
+                    }
+                    soccerResults.Add(GameResult);
+
+                    int parseInt;
+                    if (int.TryParse(values[3], out parseInt))
+                    {
+                        GameResult.Goals = parseInt;
+                    }
+                    if (int.TryParse(values[4], out parseInt))
+                    {
+                        GameResult.GoalAttempts = parseInt;
+                    }
+                    if (int.TryParse(values[5], out parseInt))
+                    {
+                        GameResult.ShotsOnGoal = parseInt;
+                    }
+                    if (int.TryParse(values[6], out parseInt))
+                    {
+                        GameResult.ShotsOffGoal = parseInt;
+                    }
+
                 }
             }
             return soccerResults;
