@@ -16,12 +16,7 @@ namespace MakersFootball
 
             var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
 
-            var fileContents = ReadFile(fileName);
-            string[] fileLines = fileContents.Split(new char[] { '\r', '\n' }); \
-            //StringSplitOptions.RemoveEmptyEntries
-            
-            foreach (var line in fileLines)
-                Console.WriteLine(line);
+            var fileContents = ReadFootballResults(fileName);
 
             Console.ReadLine();
         }
@@ -32,6 +27,21 @@ namespace MakersFootball
             {
                 return reader.ReadToEnd();
             }
+        }
+
+        public static List<string[]> ReadFootballResults(string fileName)
+        {
+            var soccerResults = new List<string[]>();
+            using (var reader = new StreamReader(fileName))
+            {
+                var line = "";
+                while ((line = reader.ReadLine()) != null)
+                {
+                    string[] values = line.Split(',');
+                    soccerResults.Add(values);
+                }
+            }
+            return soccerResults;
         }
     }
 }
