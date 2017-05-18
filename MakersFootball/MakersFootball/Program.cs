@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace MakersFootball
 {
@@ -15,8 +16,13 @@ namespace MakersFootball
             DirectoryInfo directory = new DirectoryInfo(currentDirectory);
 
             var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
-
             var fileContents = ReadFootballResults(fileName);
+
+            fileName = Path.Combine(directory.FullName, "players.json");
+            var players = DeserializedPlayer(fileName);
+
+            foreach (var player in players)
+                Console.WriteLine(player.second_name);
 
             Console.ReadLine();
         }
@@ -83,6 +89,19 @@ namespace MakersFootball
                 }
             }
             return soccerResults;
+        }
+
+        public static List<Player> DeserializedPlayer(string fileName)
+        {
+            var players = new List<Player>();
+            var serializer = new JsonSerializer();
+
+            using (var reader = new StreamReader(fileName))
+            using (var jsonReader = new JsonTextReader(reader))
+            {
+                players = serializer.Deserialize<List<Player>>(jsonReader);
+            }
+                return players;
         }
     }
 }
