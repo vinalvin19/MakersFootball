@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace MakersFootball
 {
@@ -12,23 +13,24 @@ namespace MakersFootball
     {
         static void Main(string[] args)
         {
-            string currentDirectory = Directory.GetCurrentDirectory();
-            DirectoryInfo directory = new DirectoryInfo(currentDirectory);
+            //string currentDirectory = Directory.GetCurrentDirectory();
+            //DirectoryInfo directory = new DirectoryInfo(currentDirectory);
 
-            var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
-            var fileContents = ReadFootballResults(fileName);
+            //var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
+            //var fileContents = ReadFootballResults(fileName);
 
-            fileName = Path.Combine(directory.FullName, "players.json");
-            var players = DeserializedPlayer(fileName);
+            //fileName = Path.Combine(directory.FullName, "players.json");
+            //var players = DeserializedPlayer(fileName);
 
-            var topTenPlayers = GetTopTenPlayers(players);
+            //var topTenPlayers = GetTopTenPlayers(players);
 
-            foreach (var player in topTenPlayers)
-                Console.WriteLine(player.FirstName + " - " + player.PointsPerGame);
+            //foreach (var player in topTenPlayers)
+            //    Console.WriteLine(player.FirstName + " - " + player.PointsPerGame);
 
-            var fileTopTen = Path.Combine(directory.FullName, "topten.json");
-            SerializePlayerToFile(topTenPlayers, fileTopTen);
+            //var fileTopTen = Path.Combine(directory.FullName, "topten.json");
+            //SerializePlayerToFile(topTenPlayers, fileTopTen);
 
+            Console.WriteLine(GetNewsFromPlayer("Diego valeri"));
             Console.ReadLine();
         }
 
@@ -106,7 +108,7 @@ namespace MakersFootball
             {
                 players = serializer.Deserialize<List<Player>>(jsonReader);
             }
-                return players;
+            return players;
         }
 
         public static List<Player> GetTopTenPlayers(List<Player> players)
@@ -132,9 +134,34 @@ namespace MakersFootball
             var serializer = new JsonSerializer();
 
             using (var writer = new StreamWriter(fileName))
-            using (var jsonWriter= new JsonTextWriter(writer))
+            using (var jsonWriter = new JsonTextWriter(writer))
             {
                 serializer.Serialize(jsonWriter, players);
+            }
+        }
+
+        public static string GetGoogleHomePage()
+        {
+            var webClient = new WebClient();
+            byte[] googleHome = webClient.DownloadData("https://www.google.com");
+
+            using (var stream = new MemoryStream(googleHome))
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        public static string GetNewsFromPlayer(string playerName)
+        {
+            var webClient = new WebClient();
+            webClient.Headers.Add("Ocp-Apim-Subscription-Key", "9e6467bf15cd4474a72b807d647ecae7");
+            byte[] searchResult = webClient.DownloadData(string.Format("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q={0}&mkt=en-us", playerName));
+
+            using (var stream = new MemoryStream(searchResult))
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
             }
         }
     }
