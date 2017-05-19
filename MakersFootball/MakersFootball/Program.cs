@@ -13,24 +13,30 @@ namespace MakersFootball
     {
         static void Main(string[] args)
         {
-            //string currentDirectory = Directory.GetCurrentDirectory();
-            //DirectoryInfo directory = new DirectoryInfo(currentDirectory);
+            string currentDirectory = Directory.GetCurrentDirectory();
+            DirectoryInfo directory = new DirectoryInfo(currentDirectory);
 
-            //var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
-            //var fileContents = ReadFootballResults(fileName);
+            var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
+            var fileContents = ReadFootballResults(fileName);
 
-            //fileName = Path.Combine(directory.FullName, "players.json");
-            //var players = DeserializedPlayer(fileName);
+            fileName = Path.Combine(directory.FullName, "players.json");
+            var players = DeserializedPlayer(fileName);
 
-            //var topTenPlayers = GetTopTenPlayers(players);
+            var topTenPlayers = GetTopTenPlayers(players);
 
-            //foreach (var player in topTenPlayers)
-            //    Console.WriteLine(player.FirstName + " - " + player.PointsPerGame);
+            foreach (var player in topTenPlayers)
+            {
+                List<NewsResult> newsResults = GetNewsFromPlayer(string.Format("{0} {1}", player.FirstName, player.SecondName));
+                foreach (var news in newsResults)
+                {
+                    Console.WriteLine(string.Format("Date: {0} \nHeadline: {1} \nSummary: {2} \r\n", news.datePublished, news.Headline, news.Summary));
+                    Console.ReadKey();
+                }
+            }
 
-            //var fileTopTen = Path.Combine(directory.FullName, "topten.json");
-            //SerializePlayerToFile(topTenPlayers, fileTopTen);
+            var fileTopTen = Path.Combine(directory.FullName, "topten.json");
+            SerializePlayerToFile(topTenPlayers, fileTopTen);
 
-            Console.WriteLine(GetNewsFromPlayer("Diego valeri"));
             Console.ReadLine();
         }
 
@@ -152,17 +158,21 @@ namespace MakersFootball
             }
         }
 
-        public static string GetNewsFromPlayer(string playerName)
+        public static List<NewsResult> GetNewsFromPlayer(string playerName)
         {
+            var results = new List<NewsResult>();
+            var serializer = new JsonSerializer();
             var webClient = new WebClient();
             webClient.Headers.Add("Ocp-Apim-Subscription-Key", "9e6467bf15cd4474a72b807d647ecae7");
             byte[] searchResult = webClient.DownloadData(string.Format("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q={0}&mkt=en-us", playerName));
 
             using (var stream = new MemoryStream(searchResult))
             using (var reader = new StreamReader(stream))
+            using (var jsonReader = new JsonTextReader(reader))
             {
-                return reader.ReadToEnd();
+                results = serializer.Deserialize<NewsSearch>(jsonReader).NewsResults;
             }
+            return results;
         }
     }
 }
